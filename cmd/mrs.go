@@ -1,13 +1,14 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/charmbracelet/log"
+	"github.com/gingray/swisstools/pkg/common"
+	"github.com/gingray/swisstools/pkg/mr"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // mrsCmd represents the mrs command
@@ -21,7 +22,14 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("mrs called")
+		cfg := common.Config{}
+		err := viper.Unmarshal(&cfg)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		gitlabService := mr.NewGitlab(&cfg)
+		gitlabService.FetchMrs()
 	},
 }
 
