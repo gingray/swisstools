@@ -23,6 +23,9 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		if cmd.Use == "init" {
+			return nil
+		}
 		return initializeConfig(cmd)
 	},
 	// Uncomment the following line if your bare application

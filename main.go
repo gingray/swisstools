@@ -9,7 +9,7 @@ import (
 
 func main() {
 	//if len(os.Args) == 1 {
-	//	os.Args = append(os.Args, "initialize")
+	//	os.Args = append(os.Args, "init")
 	//}
 	cmd.Execute()
 }
