@@ -7,10 +7,10 @@ import (
 )
 
 type Gitlab struct {
-	Url   string
-	Token string
-	Users []string
-	Repos []string
+	Url      string
+	Token    string
+	Authors  []string
+	Projects []string
 }
 
 type gitLabUser struct {
@@ -34,7 +34,7 @@ func (g *Gitlab) FetchMrs() {
 		log.Error(err)
 	}
 	var gitLabUsers []gitLabUser
-	for _, user := range g.Users {
+	for _, user := range g.Authors {
 		remoteUsers, _, err := git.Users.ListUsers(&gitlab.ListUsersOptions{Username: &user})
 		if err != nil {
 			log.Error(err)
@@ -44,7 +44,7 @@ func (g *Gitlab) FetchMrs() {
 		}
 	}
 	var mergeRequests []mergeRequest
-	for _, repo := range g.Repos {
+	for _, repo := range g.Projects {
 		state := "opened"
 		for _, user := range gitLabUsers {
 			mrs, _, err := git.MergeRequests.ListProjectMergeRequests(repo, &gitlab.ListProjectMergeRequestsOptions{State: &state, AuthorID: &user.Id})
