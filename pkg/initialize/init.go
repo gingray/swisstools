@@ -10,25 +10,29 @@ import (
 	"path/filepath"
 )
 
+type configPath struct {
+	FullPath  string
+	ConfigDir string
+}
+
 func CreateConfigIfNotExists() (string, error) {
 	home, err := os.UserHomeDir()
-	configPath := filepath.Join(home, common.ConfigDir)
-	viper.AddConfigPath(configPath)
+	configPath := getConfigPath(home)
+	viper.AddConfigPath(configPath.ConfigDir)
 	viper.SetConfigName(common.ConfigFile)
 	viper.SetConfigType(common.ConfigType)
 
 	if err := viper.ReadInConfig(); err != nil {
 		var configFileNotFoundError viper.ConfigFileNotFoundError
 		if errors.As(err, &configFileNotFoundError) {
-			err := os.MkdirAll(configPath, 0755)
+			err := os.MkdirAll(configPath.ConfigDir, 0755)
 			if err != nil {
 				return "", err
 			}
-			configFullPath := filepath.Join(configPath, fmt.Sprintf("%s.%s", common.ConfigFile, common.ConfigType))
-			err = viper.SafeWriteConfigAs(configFullPath)
+			err = viper.SafeWriteConfigAs(configPath.FullPath)
 			emptyConfig := common.Config{}
 			data, _ := yaml.Marshal(emptyConfig)
-			err = os.WriteFile(configFullPath, data, 0644)
+			err = os.WriteFile(configPath.FullPath, data, 0644)
 			return "", err
 		} else {
 			return "", err
@@ -45,4 +49,13 @@ func CreateConfigIfNotExists() (string, error) {
 		return "", err
 	}
 	return string(out), err
+}
+
+func getConfigPath(home string) configPath {
+	configDir := filepath.Join(home, common.ConfigDir)
+	configFullPath := filepath.Join(configDir, fmt.Sprintf("%s.%s", common.ConfigFile, common.ConfigType))
+	return configPath{
+		FullPath:  configFullPath,
+		ConfigDir: configDir,
+	}
 }
