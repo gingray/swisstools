@@ -20,9 +20,12 @@ func (t *TableView) Show(view *common.DataView) error {
 	table.Header(view.Keys)
 	var items [][]string
 	for _, row := range view.Rows {
+		var singleRow []string
 		for _, value := range view.Keys {
-			items = append(items, []string{row[value]})
+			singleRow = append(singleRow, row[value])
 		}
+		items = append(items, singleRow)
+
 	}
 	table.Bulk(items)
 	table.Footer(view.Keys)
