@@ -53,8 +53,17 @@ func (j *Jira) GetIssues() {
 	}
 	issues, _, err := client.Issue.Search(context.TODO(), query, opt)
 
-	table := tablewriter.NewTable(os.Stdout, tablewriter.WithStreaming(tw.StreamConfig{Enable: true}))
+	table := tablewriter.NewTable(os.Stdout, tablewriter.WithStreaming(tw.StreamConfig{Enable: true}), tablewriter.WithConfig(tablewriter.Config{
+		Row: tw.CellConfig{
+			Formatting:   tw.CellFormatting{AutoWrap: tw.WrapNormal}, // Wrap long content
+			Alignment:    tw.CellAlignment{Global: tw.AlignLeft},     // Left-align rows
+			ColMaxWidths: tw.CellWidth{Global: 25},
+		},
+		Footer: tw.CellConfig{
+			Alignment: tw.CellAlignment{Global: tw.AlignRight},
+		}}))
 	defer table.Close()
+	table.Start()
 	table.Header([]string{"Url", "Title", "Status", "Created"})
 	for _, item := range issues {
 		jiraUrl, err := url.JoinPath(j.Url, fmt.Sprintf("browse/%s", j.Url, item.Key))
@@ -70,4 +79,5 @@ func (j *Jira) GetIssues() {
 		table.Append([]string{issue.Url, issue.Title, issue.Status, issue.CreatedAt.Format("2006-01-02 15:04:05")})
 		//fmt.Printf("%v\n", issue)
 	}
+	table.Footer([]string{"Url", "Title", "Status", "Created"})
 }
