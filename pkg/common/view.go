@@ -1,7 +1,7 @@
 package common
 
 type ViewRecords interface {
-	Show(rows [][]string) error
+	Show(view *DataView) error
 }
 
 type DataView struct {
@@ -9,7 +9,7 @@ type DataView struct {
 	Rows []map[string]string
 }
 
-func (d *DataView) NewDataView() *DataView {
+func NewDataView() *DataView {
 	return &DataView{Rows: make([]map[string]string, 0), Keys: make([]string, 0)}
 }
 

@@ -51,7 +51,11 @@ func (j *Jira) GetIssues() {
 		StartAt:    0,
 	}
 	issues, _, err := client.Issue.Search(context.TODO(), query, opt)
-	var tableRows [][]string
+	dataView := common.NewDataView()
+	for _, key := range []string{"Url", "Title", "Status", "Created"} {
+		dataView.AddKey(key)
+	}
+
 	for _, item := range issues {
 		issue := issue{
 			Url:       getJiraUrl(j.Url, item.Key),
@@ -59,9 +63,10 @@ func (j *Jira) GetIssues() {
 			Status:    item.Fields.Status.Name,
 			CreatedAt: time.Time(item.Fields.Created),
 		}
-		tableRows = append(tableRows, []string{issue.Url, issue.Title, issue.Status, issue.CreatedAt.Format("2006-01-02 15:04:05")})
+		row := map[string]string{"Url": issue.Url, "Title": issue.Title, "Status": issue.Status, "Created": issue.CreatedAt.Format("2006-01-02 15:04:05")}
+		dataView.AddRow(row)
 	}
-	err = j.View.Show(tableRows)
+	err = j.View.Show(dataView)
 	if err != nil {
 		log.Error(err)
 	}

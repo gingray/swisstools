@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
 	"github.com/gingray/swisstools/pkg/jira"
+	"github.com/gingray/swisstools/pkg/ui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -28,8 +29,8 @@ to quickly create a Cobra application.`,
 			log.Error(err)
 			return
 		}
-		jiraSerivce := jira.NewJira(&cfg)
-		jiraSerivce.GetIssues()
+		jiraService := jira.NewJira(&cfg, ui.NewTableView())
+		jiraService.GetIssues()
 
 	},
 }
