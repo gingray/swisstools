@@ -30,7 +30,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 		sentryService := sentry.NewSentry(&cfg)
-		sentryService.GetIssues()
+		sentryService.GetTagValues("sentry-stg", "platform-staging", "server_name")
 	},
 }
 
