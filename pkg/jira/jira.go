@@ -6,10 +6,7 @@ import (
 	jira2 "github.com/andygrunwald/go-jira/v2/onpremise"
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
-	"github.com/olekukonko/tablewriter"
 	"net/url"
-	"os"
-	"os/exec"
 	"time"
 )
 
@@ -19,13 +16,15 @@ type Jira struct {
 	ApiToken string
 	Url      string
 	Project  string
+	View     common.ViewRecords
 }
 
-func NewJira(cfg *common.Config) *Jira {
+func NewJira(cfg *common.Config, view common.ViewRecords) *Jira {
 	return &Jira{
 		ApiToken: cfg.Jira.ApiToken,
 		Url:      cfg.Jira.Url,
 		Project:  cfg.Jira.Project,
+		View:     view,
 	}
 }
 
@@ -52,29 +51,31 @@ func (j *Jira) GetIssues() {
 		StartAt:    0,
 	}
 	issues, _, err := client.Issue.Search(context.TODO(), query, opt)
+	dataView := common.NewDataView()
+	for _, key := range []string{"Url", "Title", "Status", "Created"} {
+		dataView.AddKey(key)
+	}
 
-	table := tablewriter.NewTable(os.Stdout)
-	defer table.Close()
-	table.Header([]string{"Url", "Title", "Status", "Created"})
-	tableRows := [][]string{{}}
 	for _, item := range issues {
-		issueUrl, err := url.JoinPath(j.Url, fmt.Sprintf("browse/%s", item.Key))
-		if err != nil {
-			log.Error(err)
-		}
 		issue := issue{
-			Url:       issueUrl,
+			Url:       getJiraUrl(j.Url, item.Key),
 			Title:     item.Fields.Summary,
 			Status:    item.Fields.Status.Name,
 			CreatedAt: time.Time(item.Fields.Created),
 		}
-		tableRows = append(tableRows, []string{issue.Url, issue.Title, issue.Status, issue.CreatedAt.Format("2006-01-02 15:04:05")})
+		row := map[string]string{"Url": issue.Url, "Title": issue.Title, "Status": issue.Status, "Created": issue.CreatedAt.Format("2006-01-02 15:04:05")}
+		dataView.AddRow(row)
 	}
-	table.Bulk(tableRows)
-	table.Footer([]string{"Url", "Title", "Status", "Created"})
-	c := exec.Command("clear")
-	c.Stdout = os.Stdout
-	c.Run()
-	table.Render()
+	err = j.View.Show(dataView)
+	if err != nil {
+		log.Error(err)
+	}
+}
 
+func getJiraUrl(baseUrl, key string) string {
+	issueUrl, err := url.JoinPath(baseUrl, fmt.Sprintf("browse/%s", key))
+	if err != nil {
+		log.Error(err)
+	}
+	return issueUrl
 }

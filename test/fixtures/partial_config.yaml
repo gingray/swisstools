@@ -1,0 +1,5 @@
+jira:
+    apiToken: "xxx"
+    url: "https://jira.com"
+    project: "CODE"
+    
