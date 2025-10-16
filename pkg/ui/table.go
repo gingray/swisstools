@@ -1,10 +1,11 @@
 package ui
 
 import (
-	"github.com/gingray/swisstools/pkg/common"
-	"github.com/olekukonko/tablewriter"
 	"os"
 	"os/exec"
+
+	"github.com/gingray/swisstools/pkg/common"
+	"github.com/olekukonko/tablewriter"
 )
 
 type TableView struct {
