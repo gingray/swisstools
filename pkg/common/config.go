@@ -16,7 +16,7 @@ type JiraConfig struct {
 }
 
 type GitLabConfig struct {
-	Token    string   `yaml:"token" mapstructure:"token"`
+	ApiToken string   `yaml:"apiToken" mapstructure:"apiToken"`
 	Url      string   `yaml:"url" mapstructure:"url"`
 	Authors  []string `yaml:"authors" mapstructure:"authors"`
 	Projects []string `yaml:"projects" mapstructure:"projects"`

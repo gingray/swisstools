@@ -24,7 +24,7 @@ type mergeRequest struct {
 func NewGitlab(cfg *common.Config) *Gitlab {
 	return &Gitlab{
 		Url:   cfg.GitLab.Url,
-		Token: cfg.GitLab.Token,
+		Token: cfg.GitLab.ApiToken,
 	}
 }
 

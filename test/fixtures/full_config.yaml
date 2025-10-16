@@ -1,0 +1,11 @@
+jira:
+    apiToken: "super token"
+    url: "https://jira.com"
+    project: "CODE"
+gitlab:
+    apiToken: "super token"
+    url: "https://my.giltab.com"
+    authors:
+        - alex.rows
+    projects:
+        - devops/main

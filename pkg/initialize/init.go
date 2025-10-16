@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gingray/swisstools/pkg/common"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -39,8 +40,8 @@ func CreateConfigIfNotExists() (string, error) {
 		}
 	}
 
-	cfg := common.Config{}
-	err = viper.Unmarshal(&cfg)
+	cfg := &common.Config{}
+	cfg, err = unmarshallConfig(cfg)
 	if err != nil {
 		return "", err
 	}
@@ -58,4 +59,13 @@ func getConfigPath(home string) configPath {
 		FullPath:  configFullPath,
 		ConfigDir: configDir,
 	}
+}
+
+func unmarshallConfig(cfg *common.Config) (*common.Config, error) {
+	err := viper.Unmarshal(cfg, func(config *mapstructure.DecoderConfig) {
+		config.TagName = "mapstructure"
+		config.WeaklyTypedInput = true
+		config.ErrorUnused = false
+	})
+	return cfg, err
 }
