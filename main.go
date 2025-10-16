@@ -5,11 +5,12 @@ package main
 
 import (
 	"github.com/gingray/swisstools/cmd"
+	"os"
 )
 
 func main() {
-	//if len(os.Args) == 1 {
-	//	os.Args = append(os.Args, "init")
-	//}
+	if len(os.Args) == 1 && os.Getenv("SWISS_TEST") != "" {
+		os.Args = append(os.Args, os.Getenv("SWISS_TEST"))
+	}
 	cmd.Execute()
 }
