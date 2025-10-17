@@ -28,10 +28,30 @@ func (c *client) GetTagValues(organization, project, tag string) ([]Tag, error) 
 	if err != nil {
 		log.Error(err)
 	}
+	allTagValues := make([]Tag, 0)
 	tags := make([]Tag, 0)
 	err = json.Unmarshal(body, &tags)
 	if err != nil {
 		log.Error(err)
 	}
-	return tags, err
+
+	allTagValues = append(allTagValues, tags...)
+	pagination := parsePagination(resp.Header.Get(""))
+	for pagination != nil && pagination.NextUrl != "" {
+		resp, err := c.do("GET", pagination.NextUrl, nil)
+		if err != nil {
+			log.Error(err)
+		}
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Error(err)
+		}
+		err = json.Unmarshal(body, &tags)
+		if err != nil {
+			log.Error(err)
+		}
+		allTagValues = append(allTagValues, tags...)
+		pagination = parsePagination(resp.Header.Get(""))
+	}
+	return allTagValues, err
 }

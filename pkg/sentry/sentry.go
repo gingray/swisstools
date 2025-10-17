@@ -2,7 +2,6 @@ package sentry
 
 import (
 	"fmt"
-
 	"github.com/gingray/swisstools/pkg/common"
 )
 

@@ -25,11 +25,15 @@ func newClient(sentry *Sentry) *client {
 
 func (c *client) makeRequest(method string, apiSegment string, body []byte) (*http.Response, error) {
 	reqUrl, _ := url.JoinPath(c.baseUrl, apiSegment)
+	return c.do(method, reqUrl, body)
+}
+
+func (c *client) do(method string, url string, body []byte) (*http.Response, error) {
 	var reader io.Reader
 	if body != nil {
 		reader = bytes.NewReader(body)
 	}
-	req, _ := http.NewRequest(method, reqUrl, reader)
+	req, _ := http.NewRequest(method, url, reader)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.apiToken))
 	req.Header.Add("Accept", "application/json")
