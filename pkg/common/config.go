@@ -28,4 +28,5 @@ type SentryConfig struct {
 	Url          string `yaml:"url" mapstructure:"url"`
 	Organization string `yaml:"organization" mapstructure:"organization"`
 	Project      string `yaml:"project" mapstructure:"project"`
+	Tag          string `yaml:"tag" mapstructure:"tag"`
 }

@@ -31,7 +31,7 @@ to quickly create a Cobra application.`,
 			return
 		}
 		sentryService := sentry.NewSentry(&cfg, &ui.TableView{})
-		sentryService.GetTagValues(cfg.Sentry.Organization, cfg.Sentry.Project, "server_name")
+		sentryService.GetTagValues(cfg.Sentry.Organization, cfg.Sentry.Project, cfg.Sentry.Tag)
 	},
 }
 
