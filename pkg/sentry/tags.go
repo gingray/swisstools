@@ -36,7 +36,7 @@ func (c *client) GetTagValues(organization, project, tag string) ([]Tag, error) 
 	}
 
 	allTagValues = append(allTagValues, tags...)
-	pagination := parsePagination(resp.Header.Get(""))
+	pagination := parsePagination(resp.Header.Get("Link"))
 	for pagination != nil && pagination.NextUrl != "" {
 		resp, err := c.do("GET", pagination.NextUrl, nil)
 		if err != nil {
@@ -51,7 +51,7 @@ func (c *client) GetTagValues(organization, project, tag string) ([]Tag, error) 
 			log.Error(err)
 		}
 		allTagValues = append(allTagValues, tags...)
-		pagination = parsePagination(resp.Header.Get(""))
+		pagination = parsePagination(resp.Header.Get("Link"))
 	}
 	return allTagValues, err
 }

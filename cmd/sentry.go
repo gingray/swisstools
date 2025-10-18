@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
 	"github.com/gingray/swisstools/pkg/sentry"
+	"github.com/gingray/swisstools/pkg/ui"
 	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
@@ -29,8 +30,8 @@ to quickly create a Cobra application.`,
 			log.Error(err)
 			return
 		}
-		sentryService := sentry.NewSentry(&cfg)
-		sentryService.GetTagValues("sentry-stg", "platform-staging", "server_name")
+		sentryService := sentry.NewSentry(&cfg, &ui.TableView{})
+		sentryService.GetTagValues(cfg.Sentry.Organization, cfg.Sentry.Project, "server_name")
 	},
 }
 
