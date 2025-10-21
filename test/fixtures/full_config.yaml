@@ -1,11 +1,17 @@
 jira:
-    apiToken: "super token"
+    apiToken: "super jira token"
     url: "https://jira.com"
     project: "CODE"
 gitlab:
-    apiToken: "super token"
+    apiToken: "super gitlab token"
     url: "https://my.giltab.com"
     authors:
         - alex.rows
     projects:
         - devops/main
+sentry:
+    apiToken: "super sentry token"
+    url: "https://sentry.com"
+    organization: "my-org"
+    project: "DevOps"
+    tag: "server_name"
