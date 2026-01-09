@@ -8,6 +8,7 @@ type Config struct {
 	Jira   JiraConfig   `yaml:"jira" mapstructure:"jira"`
 	GitLab GitLabConfig `yaml:"gitlab" mapstructure:"gitlab"`
 	Sentry SentryConfig `yaml:"sentry" mapstructure:"sentry"`
+	Api    ApiConfig    `yaml:"api" mapstructure:"api"`
 }
 
 type JiraConfig struct {
@@ -29,4 +30,9 @@ type SentryConfig struct {
 	Organization string `yaml:"organization" mapstructure:"organization"`
 	Project      string `yaml:"project" mapstructure:"project"`
 	Tag          string `yaml:"tag" mapstructure:"tag"`
+}
+
+type ApiConfig struct {
+	Port      int    `yaml:"port" mapstructure:"port"`
+	SecretKey string `yaml:"secretKey" mapstructure:"secretKey"`
 }
