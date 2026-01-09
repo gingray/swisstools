@@ -43,6 +43,7 @@ func (s *Server) ExecuteCMD(c *gin.Context) {
 	cmd.Dir = req.Cwd
 	cmd.Stdout = &stdBuffer
 	cmd.Stderr = &stdErrBuffer
+	log.Infof("Executing command %s", req.Command)
 	err = cmd.Run()
 	if err != nil {
 		log.Error(err)
