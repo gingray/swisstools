@@ -16,3 +16,9 @@ sentry:
 api:
     port: 0
     secretKey: ""
+workflow:
+    - name: test
+      endpoint: http://localhost:8080
+      method: POST
+      predefinedArgs:
+        - name: git-current-branch
