@@ -57,10 +57,16 @@ func TestFullConfigInFixtureDirectory(t *testing.T) {
 	configPath := filepath.Join(test.RootPath, "fixtures", configFile)
 	err := viper.SafeWriteConfigAs(configPath)
 	assertion.NoError(err)
-	emptyConfig := common.Config{Workflows: []common.WorkflowConfig{{Name: "test",
-		Endpoint:       "http://localhost:8080",
-		Method:         "POST",
-		PredefinedArgs: []common.PredefinedArg{{Name: "git-current-branch"}}}}}
+	emptyConfig := common.Config{Workflows: map[string]common.WorkflowConfig{
+		"workflow-1": {
+			Endpoint:       "http://localhost:8080",
+			Method:         "POST",
+			PredefinedArgs: []common.PredefinedArg{{Name: "git-current-branch"}}},
+		"workflow-2": {
+			Endpoint:       "http://localhost:8080",
+			Method:         "POST",
+			PredefinedArgs: []common.PredefinedArg{{Name: "current-dir"}},
+		}}}
 	data, _ := yaml.Marshal(emptyConfig)
 	err = os.WriteFile(configPath, data, 0644)
 	assertion.NoError(err)
