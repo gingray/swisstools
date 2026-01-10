@@ -1,7 +1,6 @@
 package api
 
 import (
-	"bytes"
 	"github.com/charmbracelet/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gingray/swisstools/pkg/common"
@@ -37,19 +36,15 @@ func (s *Server) ExecuteCMD(c *gin.Context) {
 		c.JSONP(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var stdBuffer bytes.Buffer
-	var stdErrBuffer bytes.Buffer
 	cmd := exec.Command(req.Command, req.Args...)
 	cmd.Dir = req.Cwd
-	cmd.Stdout = &stdBuffer
-	cmd.Stderr = &stdErrBuffer
 	log.Infof("Executing command %s", req.Command)
-	err = cmd.Run()
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Error(err)
 		c.JSONP(http.StatusInternalServerError, gin.H{"execution error": err.Error()})
 		return
 	}
 	log.Infof("Command %s executed successfully", req.Command)
-	c.JSONP(http.StatusOK, gin.H{"message": "OK", "cmd": req.Command, "args": req.Args, "cwd": req.Cwd, "stdout": stdBuffer.String(), "stderr": stdErrBuffer.String()})
+	c.JSONP(http.StatusOK, gin.H{"message": "OK", "cmd": req.Command, "args": req.Args, "cwd": req.Cwd, "result": ParseResponse(output)})
 }
