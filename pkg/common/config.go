@@ -45,5 +45,6 @@ type WorkflowConfig struct {
 }
 
 type PredefinedArg struct {
-	Name string `yaml:"name" mapstructure:"name"`
+	Key   string `yaml:"key" mapstructure:"key"`
+	Value string `yaml:"value" mapstructure:"value"`
 }

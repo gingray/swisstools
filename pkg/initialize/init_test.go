@@ -50,7 +50,7 @@ func TestFullConfigUnmarshall(t *testing.T) {
 }
 
 func TestFullConfigInFixtureDirectory(t *testing.T) {
-	t.Skip("skip config file creation")
+	//t.Skip("skip config file creation")
 
 	assertion := assert.New(t)
 	configFile := "full_config.yaml"
@@ -61,11 +61,11 @@ func TestFullConfigInFixtureDirectory(t *testing.T) {
 		"workflow-1": {
 			Endpoint:       "http://localhost:8080",
 			Method:         "POST",
-			PredefinedArgs: []common.PredefinedArg{{Name: "git-current-branch"}}},
+			PredefinedArgs: []common.PredefinedArg{{Key: "branch", Value: "{{.BranchName}}"}}},
 		"workflow-2": {
 			Endpoint:       "http://localhost:8080",
 			Method:         "POST",
-			PredefinedArgs: []common.PredefinedArg{{Name: "current-dir"}},
+			PredefinedArgs: []common.PredefinedArg{{Key: "currentDir", Value: "{{.CurrentDir}}"}},
 		}}}
 	data, _ := yaml.Marshal(emptyConfig)
 	err = os.WriteFile(configPath, data, 0644)

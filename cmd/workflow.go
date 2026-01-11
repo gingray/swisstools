@@ -3,11 +3,12 @@ package cmd
 import (
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
+	"github.com/gingray/swisstools/pkg/workflow"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var workFlowCmd = &cobra.Command{
+var workflowCmd = &cobra.Command{
 	Use:   "workflow",
 	Short: "Trigger a workflow by apply request to particular endpoint with payload",
 	Long:  `Trigger a workflow by apply request to particular endpoint with payload`,
@@ -18,11 +19,22 @@ var workFlowCmd = &cobra.Command{
 			log.Error(err)
 			return
 		}
+		if len(args) == 0 {
+			for k, _ := range cfg.Workflows {
+				log.Infof("available workflow: [%s]", k)
+			}
+			return
+		}
+		workflowRequest := workflow.NewWorkflowRequest(args[0], &cfg)
+		err = workflowRequest.MakeRequest()
+		if err != nil {
+			log.Error(err)
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(workFlowCmd)
+	rootCmd.AddCommand(workflowCmd)
 
 	// Here you will define your flags and configuration settings.
 

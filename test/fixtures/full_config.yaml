@@ -17,13 +17,15 @@ api:
     port: 0
     secretKey: ""
 workflow:
-    workflow 2:
-        endpoint: http://localhost:8080
-        method: POST
-        predefinedArgs:
-            - name: current-dir
     workflow-1:
         endpoint: http://localhost:8080
         method: POST
         predefinedArgs:
-            - name: git-current-branch
+            - key: branch
+              value: '{{.BranchName}}'
+    workflow-2:
+        endpoint: http://localhost:8080
+        method: POST
+        predefinedArgs:
+            - key: currentDir
+              value: '{{.CurrentDir}}'
