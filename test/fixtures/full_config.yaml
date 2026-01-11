@@ -20,12 +20,16 @@ workflow:
     workflow-1:
         endpoint: http://localhost:8080
         method: POST
+        headers:
+            - key: X-Token
+              value: my-secret-token
         predefinedArgs:
             - key: branch
               value: '{{.BranchName}}'
     workflow-2:
         endpoint: http://localhost:8080
         method: POST
+        headers: []
         predefinedArgs:
             - key: currentDir
               value: '{{.CurrentDir}}'

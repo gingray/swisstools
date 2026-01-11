@@ -50,7 +50,7 @@ func TestFullConfigUnmarshall(t *testing.T) {
 }
 
 func TestFullConfigInFixtureDirectory(t *testing.T) {
-	//t.Skip("skip config file creation")
+	t.Skip("skip config file creation")
 
 	assertion := assert.New(t)
 	configFile := "full_config.yaml"
@@ -61,6 +61,7 @@ func TestFullConfigInFixtureDirectory(t *testing.T) {
 		"workflow-1": {
 			Endpoint:       "http://localhost:8080",
 			Method:         "POST",
+			Headers:        []common.WorkflowHeader{{Key: "X-Token", Value: "my-secret-token"}},
 			PredefinedArgs: []common.PredefinedArg{{Key: "branch", Value: "{{.BranchName}}"}}},
 		"workflow-2": {
 			Endpoint:       "http://localhost:8080",

@@ -39,12 +39,18 @@ type ApiConfig struct {
 }
 
 type WorkflowConfig struct {
-	Endpoint       string          `yaml:"endpoint" mapstructure:"endpoint"`
-	Method         string          `yaml:"method" mapstructure:"method"`
-	PredefinedArgs []PredefinedArg `yaml:"predefinedArgs" mapstructure:"predefinedArgs"`
+	Endpoint       string           `yaml:"endpoint" mapstructure:"endpoint"`
+	Method         string           `yaml:"method" mapstructure:"method"`
+	Headers        []WorkflowHeader `yaml:"headers" mapstructure:"headers"`
+	PredefinedArgs []PredefinedArg  `yaml:"predefinedArgs" mapstructure:"predefinedArgs"`
 }
 
 type PredefinedArg struct {
 	Key   string `yaml:"key" mapstructure:"key"`
 	Value string `yaml:"value" mapstructure:"value"`
+}
+
+type WorkflowHeader struct {
+	Key   string `json:"key" mapstructure:"key"`
+	Value string `json:"value" mapstructure:"value"`
 }

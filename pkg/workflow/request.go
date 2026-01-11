@@ -60,6 +60,9 @@ func (r *WorkflowRequest) MakeRequest(keyValues []string) error {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	for _, item := range workflow.Headers {
+		req.Header.Set(item.Key, item.Value)
+	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
