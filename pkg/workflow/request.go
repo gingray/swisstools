@@ -10,6 +10,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type WorkflowRequest struct {
@@ -21,7 +22,7 @@ func NewWorkflowRequest(workflowName string, config *common.Config) *WorkflowReq
 	return &WorkflowRequest{WorkflowName: workflowName, config: config}
 }
 
-func (r *WorkflowRequest) MakeRequest() error {
+func (r *WorkflowRequest) MakeRequest(keyValues []string) error {
 	ctx := context.Background()
 	workflow := r.config.Workflows[r.WorkflowName]
 	payload := make(map[string]string)
@@ -40,6 +41,14 @@ func (r *WorkflowRequest) MakeRequest() error {
 			return err
 		}
 		payload[arg.Key] = buffer.String()
+	}
+
+	for _, item := range keyValues {
+		parts := strings.SplitN(item, "=", 2)
+		if len(parts) != 2 {
+			return fmt.Errorf("invalid data %q", item)
+		}
+		payload[parts[0]] = parts[1]
 	}
 	log.Infof("Template vars: %+v", payload)
 	body, err := json.Marshal(payload)

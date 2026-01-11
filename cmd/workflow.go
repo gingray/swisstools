@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var data []string
+
 var workflowCmd = &cobra.Command{
 	Use:   "workflow",
 	Short: "Trigger a workflow by apply request to particular endpoint with payload",
@@ -26,7 +28,7 @@ var workflowCmd = &cobra.Command{
 			return
 		}
 		workflowRequest := workflow.NewWorkflowRequest(args[0], &cfg)
-		err = workflowRequest.MakeRequest()
+		err = workflowRequest.MakeRequest(data)
 		if err != nil {
 			log.Error(err)
 		}
@@ -34,8 +36,8 @@ var workflowCmd = &cobra.Command{
 }
 
 func init() {
+	workflowCmd.Flags().StringSliceVarP(&data, "data", "d", []string{}, "data to send in payload")
 	rootCmd.AddCommand(workflowCmd)
-
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
