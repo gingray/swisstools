@@ -73,5 +73,16 @@ func (r *WorkflowRequest) MakeRequest(keyValues []string) error {
 		b, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("http %d: %s", resp.StatusCode, b)
 	}
+	b, _ := io.ReadAll(resp.Body)
+	var response interface{}
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		return err
+	}
+	b, err = json.MarshalIndent(response, "", "  ")
+	if err != nil {
+		return err
+	}
+	log.Infof("\n%s", string(b))
 	return nil
 }
