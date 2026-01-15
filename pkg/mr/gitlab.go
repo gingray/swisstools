@@ -1,6 +1,7 @@
 package mr
 
 import (
+	"sort"
 	"time"
 
 	"github.com/charmbracelet/log"
@@ -71,6 +72,12 @@ func (g *Gitlab) FetchMrs() {
 	for _, key := range []string{"Url", "Title", "Author", "Updated"} {
 		dataView.AddKey(key)
 	}
+	sort.Slice(mergeRequests, func(i, j int) bool {
+		if mergeRequests[i].Author != mergeRequests[j].Author {
+			return mergeRequests[i].Author < mergeRequests[j].Author
+		}
+		return mergeRequests[i].UpdatedAt.After(mergeRequests[j].UpdatedAt)
+	})
 	for _, item := range mergeRequests {
 		row := map[string]string{"Url": item.Url, "Title": item.Title, "Author": item.Author, "Updated": item.UpdatedAt.Format("2006-01-02 15:04:05")}
 		dataView.AddRow(row)
