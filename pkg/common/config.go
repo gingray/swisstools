@@ -10,6 +10,7 @@ type Config struct {
 	Sentry    SentryConfig              `yaml:"sentry" mapstructure:"sentry"`
 	Api       ApiConfig                 `yaml:"api" mapstructure:"api"`
 	Workflows map[string]WorkflowConfig `yaml:"workflow" mapstructure:"workflow"`
+	MCP       MCPConfig                 `yaml:"mcp" mapstructure:"mcp"`
 }
 
 type JiraConfig struct {
@@ -53,4 +54,8 @@ type PredefinedArg struct {
 type WorkflowHeader struct {
 	Key   string `json:"key" mapstructure:"key"`
 	Value string `json:"value" mapstructure:"value"`
+}
+
+type MCPConfig struct {
+	Port int `yaml:"port" mapstructure:"port"`
 }

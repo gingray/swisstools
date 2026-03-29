@@ -33,3 +33,5 @@ workflow:
         predefinedArgs:
             - key: currentDir
               value: '{{.CurrentDir}}'
+mcp:
+    port: 8181
