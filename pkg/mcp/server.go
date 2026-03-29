@@ -33,8 +33,8 @@ func (s *MCPServer) Run() error {
 		Version: "v0.0.1",
 	}, &opts)
 	mcp.AddTool(server, &mcp.Tool{
-		Name:        "GetFilesChanged",
-		Description: "get changed files for particular branch",
+		Name:        "GitLabMRChanges",
+		Description: "Get Merge Request changes from GitLab by branch name",
 	}, s.GitLabChanges)
 	handler := mcp.NewStreamableHTTPHandler(func(request *http.Request) *mcp.Server {
 		return server
