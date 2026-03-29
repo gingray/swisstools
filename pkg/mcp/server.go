@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"os"
@@ -42,9 +43,17 @@ func (s *MCPServer) Run() error {
 }
 
 func (s *MCPServer) GitLabChanges(ctx context.Context, req *mcp.CallToolRequest, args BranchParams) (*mcp.CallToolResult, any, error) {
+	out, err := ChangedFilesForBranch(&s.cfg.GitLab, args.Branch)
+	if err != nil {
+		return nil, nil, err
+	}
+	b, err := json.MarshalIndent(out, "", "  ")
+	if err != nil {
+		return nil, nil, err
+	}
 	return &mcp.CallToolResult{
 		Content: []mcp.Content{
-			&mcp.TextContent{Text: "file1,file2,file3"},
+			&mcp.TextContent{Text: string(b)},
 		},
 	}, nil, nil
 }
