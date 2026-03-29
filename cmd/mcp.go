@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
 	"github.com/gingray/swisstools/pkg/mcp"
@@ -8,6 +10,15 @@ import (
 	"github.com/spf13/viper"
 )
 
+var setupMCP = `
+{
+  "mcpServers": {
+    "swisstools-mcp": {
+      "url": "http://localhost:8181/"
+    }
+  }
+}
+`
 var mcpCmd = &cobra.Command{
 	Use:   "mcp",
 	Short: "mcp server for exposed operations",
@@ -16,6 +27,7 @@ var mcpCmd = &cobra.Command{
 		cfg := common.Config{}
 		err := viper.Unmarshal(&cfg)
 		if err != nil {
+			fmt.Println(setupMCP)
 			log.Error(err)
 			return
 		}

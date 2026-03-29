@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -39,7 +40,7 @@ func (s *MCPServer) Run() error {
 	handler := mcp.NewStreamableHTTPHandler(func(request *http.Request) *mcp.Server {
 		return server
 	}, nil)
-	return http.ListenAndServe(":8080", handler)
+	return http.ListenAndServe(fmt.Sprintf(":%d", s.cfg.MCP.Port), handler)
 }
 
 func (s *MCPServer) GitLabChanges(ctx context.Context, req *mcp.CallToolRequest, args BranchParams) (*mcp.CallToolResult, any, error) {
