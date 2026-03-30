@@ -6,13 +6,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
+type Gitlab struct {
+	cfg *common.Config
+}
+
+type gitLabUser struct {
+	Id   int
+	Name string
+}
+
 // BranchMergeRequestFiles is the merge request GitLab associates with a source branch and the paths it changes.
 type BranchMergeRequestFiles struct {
-	Project string   `json:"project"`
+	Project int      `json:"projectID"`
 	IID     int      `json:"iid"`
 	WebURL  string   `json:"web_url"`
 	Title   string   `json:"title"`
@@ -20,26 +30,27 @@ type BranchMergeRequestFiles struct {
 	Files   []string `json:"files"`
 }
 
+func NewGitlab(cfg *common.Config) *Gitlab {
+	return &Gitlab{cfg: cfg}
+}
+
 // ChangedFilesForBranch finds the most recently updated merge request whose source branch matches branch
 // across cfg.Projects, then lists all changed file paths from that MR’s diffs.
-func ChangedFilesForBranch(cfg *common.GitLabConfig, branch string) (*BranchMergeRequestFiles, error) {
+func (g *Gitlab) ChangedFilesForBranch(branch string) (*BranchMergeRequestFiles, error) {
 	branch = strings.TrimSpace(branch)
 	if branch == "" {
 		return nil, errors.New("branch name is empty")
 	}
-	if cfg.Url == "" || cfg.ApiToken == "" {
+	if g.cfg.GitLab.Url == "" || g.cfg.GitLab.ApiToken == "" {
 		return nil, errors.New("gitlab url and apiToken must be configured")
 	}
-	if len(cfg.Projects) == 0 {
-		return nil, errors.New("no gitlab projects configured")
-	}
 
-	client, err := gitlab.NewClient(cfg.ApiToken, gitlab.WithBaseURL(cfg.Url))
+	client, err := gitlab.NewClient(g.cfg.GitLab.ApiToken, gitlab.WithBaseURL(g.cfg.GitLab.Url))
 	if err != nil {
 		return nil, fmt.Errorf("gitlab client: %w", err)
 	}
 
-	project, mr, err := findMergeRequestForBranch(client, cfg.Projects, branch)
+	project, mr, err := findMergeRequestForBranch(client, g.cfg.MCP.GitLabUser, branch)
 	if err != nil {
 		return nil, err
 	}
@@ -59,29 +70,35 @@ func ChangedFilesForBranch(cfg *common.GitLabConfig, branch string) (*BranchMerg
 	}, nil
 }
 
-func findMergeRequestForBranch(client *gitlab.Client, projects []string, branch string) (string, *gitlab.BasicMergeRequest, error) {
+func findMergeRequestForBranch(client *gitlab.Client, author string, branch string) (int, *gitlab.BasicMergeRequest, error) {
 	state := "all"
 	orderBy := "updated_at"
 	sort := "desc"
 
-	var bestProject string
+	var bestProject int
 	var best *gitlab.BasicMergeRequest
 	var bestUpdated time.Time
+	var gitLabUsers []gitLabUser
 
-	for _, pid := range projects {
-		pid = strings.TrimSpace(pid)
-		if pid == "" {
-			continue
-		}
-		mrs, _, err := client.MergeRequests.ListProjectMergeRequests(pid, &gitlab.ListProjectMergeRequestsOptions{
-			ListOptions: gitlab.ListOptions{Page: 1, PerPage: 1},
-			State:       gitlab.Ptr(state),
+	remoteUsers, _, err := client.Users.ListUsers(&gitlab.ListUsersOptions{Username: &author})
+	if err != nil {
+		log.Error(err)
+	}
+	for _, remoteUser := range remoteUsers {
+		gitLabUsers = append(gitLabUsers, gitLabUser{Id: remoteUser.ID, Name: remoteUser.Username})
+	}
+
+	for _, user := range gitLabUsers {
+		mrs, _, err := client.MergeRequests.ListMergeRequests(&gitlab.ListMergeRequestsOptions{
+			AuthorID:     &user.Id,
+			ListOptions:  gitlab.ListOptions{Page: 1, PerPage: 1},
+			State:        gitlab.Ptr(state),
 			SourceBranch: gitlab.Ptr(branch),
-			OrderBy:     gitlab.Ptr(orderBy),
-			Sort:        gitlab.Ptr(sort),
+			OrderBy:      gitlab.Ptr(orderBy),
+			Sort:         gitlab.Ptr(sort),
 		})
 		if err != nil {
-			return "", nil, fmt.Errorf("list merge requests for project %q: %w", pid, err)
+			return 0, nil, fmt.Errorf("list merge requests for project %q: %w", user, err)
 		}
 		if len(mrs) == 0 {
 			continue
@@ -94,17 +111,17 @@ func findMergeRequestForBranch(client *gitlab.Client, projects []string, branch 
 		if best == nil || updated.After(bestUpdated) {
 			best = mr
 			bestUpdated = updated
-			bestProject = pid
+			bestProject = mr.ProjectID
 		}
 	}
 
 	if best == nil {
-		return "", nil, fmt.Errorf("no merge request found for source branch %q in configured projects", branch)
+		return 0, nil, fmt.Errorf("no merge request found for source branch %q in configured projects", branch)
 	}
 	return bestProject, best, nil
 }
 
-func mergeRequestFilePaths(client *gitlab.Client, project string, mergeRequestIID int) ([]string, error) {
+func mergeRequestFilePaths(client *gitlab.Client, project int, mergeRequestIID int) ([]string, error) {
 	page := 1
 	const perPage = 100
 	var paths []string

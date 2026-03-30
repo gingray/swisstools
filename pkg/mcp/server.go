@@ -44,7 +44,8 @@ func (s *MCPServer) Run() error {
 }
 
 func (s *MCPServer) GitLabChanges(ctx context.Context, req *mcp.CallToolRequest, args BranchParams) (*mcp.CallToolResult, any, error) {
-	out, err := ChangedFilesForBranch(&s.cfg.GitLab, args.Branch)
+	gitlab := NewGitlab(s.cfg)
+	out, err := gitlab.ChangedFilesForBranch(args.Branch)
 	if err != nil {
 		return nil, nil, err
 	}

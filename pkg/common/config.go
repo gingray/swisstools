@@ -57,5 +57,6 @@ type WorkflowHeader struct {
 }
 
 type MCPConfig struct {
-	Port int `yaml:"port" mapstructure:"port"`
+	Port       int    `yaml:"port" mapstructure:"port"`
+	GitLabUser string `yaml:"gitlabUser" mapstructure:"gitlabUser"`
 }
