@@ -94,7 +94,6 @@ func (g *Gitlab) ChangedFilesForBranch(filter BranchFilter) (*BranchChanges, err
 	if err != nil {
 		log.Error(err)
 	}
-	var mr gitlab.BasicMergeRequest
 	for _, user := range gitLabUsers {
 		mrs, _, err := g.client.MergeRequests.ListMergeRequests(&gitlab.ListMergeRequestsOptions{
 			AuthorID:     &user.ID,
@@ -114,7 +113,7 @@ func (g *Gitlab) ChangedFilesForBranch(filter BranchFilter) (*BranchChanges, err
 		if err != nil {
 			return nil, err
 		}
-		return &BranchChanges{Branch: mr.SourceBranch, ChangedFiles: filesChanged}, nil
+		return &BranchChanges{Branch: mrs[0].SourceBranch, ChangedFiles: filesChanged}, nil
 	}
 	return nil, fmt.Errorf("no merge request found for user %q", filter.User)
 }
