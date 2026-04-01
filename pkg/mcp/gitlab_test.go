@@ -34,7 +34,7 @@ func TestGitlab_ChangedFilesForBranch(t *testing.T) {
 				branch: "test-branch",
 			},
 			want: &BranchMergeRequestFiles{
-				Files: []string{"README.md"},
+				ChangedFiles: []string{"README.md"},
 			},
 			wantErr: false,
 		},

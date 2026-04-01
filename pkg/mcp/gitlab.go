@@ -22,12 +22,12 @@ type gitLabUser struct {
 
 // BranchMergeRequestFiles is the merge request GitLab associates with a source branch and the paths it changes.
 type BranchMergeRequestFiles struct {
-	Project int      `json:"projectID"`
-	IID     int      `json:"iid"`
-	WebURL  string   `json:"web_url"`
-	Title   string   `json:"title"`
-	State   string   `json:"state"`
-	Files   []string `json:"files"`
+	Project      int      `json:"projectID"`
+	IID          int      `json:"iid"`
+	WebURL       string   `json:"web_url"`
+	Title        string   `json:"title"`
+	State        string   `json:"state"`
+	ChangedFiles []string `json:"changed_files"`
 }
 
 func NewGitlab(cfg *common.Config) *Gitlab {
@@ -61,12 +61,12 @@ func (g *Gitlab) ChangedFilesForBranch(branch string) (*BranchMergeRequestFiles,
 	}
 
 	return &BranchMergeRequestFiles{
-		Project: project,
-		IID:     mr.IID,
-		WebURL:  mr.WebURL,
-		Title:   mr.Title,
-		State:   mr.State,
-		Files:   files,
+		Project:      project,
+		IID:          mr.IID,
+		WebURL:       mr.WebURL,
+		Title:        mr.Title,
+		State:        mr.State,
+		ChangedFiles: files,
 	}, nil
 }
 
@@ -159,7 +159,7 @@ func diffFilePath(d *gitlab.MergeRequestDiff) string {
 		return ""
 	}
 	if d.DeletedFile {
-		return d.OldPath
+		return ""
 	}
 	return d.NewPath
 }
