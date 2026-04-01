@@ -2,71 +2,46 @@ package mr
 
 import (
 	"sort"
-	"time"
 
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
-	gitlab "gitlab.com/gitlab-org/api/client-go"
+	"github.com/gingray/swisstools/pkg/service"
 )
 
+type client interface {
+	Users(filter service.UserFilter) ([]service.GitlabUser, error)
+	ProjectMRs(filter service.ProjectFilter) ([]service.GitlabProject, error)
+}
 type Gitlab struct {
-	Url      string
-	Token    string
-	Authors  []string
-	Projects []string
-	view     common.ViewRecords
+	Authors      []string
+	Projects     []string
+	gitlabClient client
+	view         common.ViewRecords
 }
 
-type gitLabUser struct {
-	Id   int
-	Name string
-}
-type mergeRequest struct {
-	Url       string
-	Title     string
-	Author    string
-	UpdatedAt time.Time
-}
-
-func NewGitlab(cfg *common.Config, view common.ViewRecords) *Gitlab {
+func NewGitlab(cfg *common.Config, gitlabClient client, view common.ViewRecords) *Gitlab {
 	return &Gitlab{
-		Url:      cfg.GitLab.Url,
-		Token:    cfg.GitLab.ApiToken,
-		Authors:  cfg.GitLab.Authors,
-		Projects: cfg.GitLab.Projects,
-		view:     view,
+		Authors:      cfg.GitLab.Authors,
+		Projects:     cfg.GitLab.Projects,
+		view:         view,
+		gitlabClient: gitlabClient,
 	}
 }
 
 func (g *Gitlab) FetchMrs() {
-	git, err := gitlab.NewClient(g.Token, gitlab.WithBaseURL(g.Url))
-	if err != nil {
-		log.Error(err)
-	}
-	var gitLabUsers []gitLabUser
+	var gitlabUserIDs []int
 	for _, user := range g.Authors {
-		remoteUsers, _, err := git.Users.ListUsers(&gitlab.ListUsersOptions{Username: &user})
+		remoteUsers, err := g.gitlabClient.Users(service.UserFilter{Name: user})
 		if err != nil {
 			log.Error(err)
 		}
 		for _, remoteUser := range remoteUsers {
-			gitLabUsers = append(gitLabUsers, gitLabUser{Id: remoteUser.ID, Name: remoteUser.Username})
+			gitlabUserIDs = append(gitlabUserIDs, remoteUser.ID)
 		}
 	}
-	var mergeRequests []mergeRequest
-	for _, repo := range g.Projects {
-		state := "opened"
-		for _, user := range gitLabUsers {
-			mrs, _, err := git.MergeRequests.ListProjectMergeRequests(repo, &gitlab.ListProjectMergeRequestsOptions{State: &state, AuthorID: &user.Id})
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-			for _, mr := range mrs {
-				mergeRequests = append(mergeRequests, mergeRequest{Url: mr.WebURL, Title: mr.Title, Author: mr.Author.Username, UpdatedAt: *mr.UpdatedAt})
-			}
-
-		}
+	mergeRequests, err := g.gitlabClient.ProjectMRs(service.ProjectFilter{Projects: g.Projects, UserIDs: gitlabUserIDs})
+	if err != nil {
+		log.Error(err)
 	}
 	dataView := common.NewDataView()
 	for _, key := range []string{"Url", "Title", "Author", "Updated"} {

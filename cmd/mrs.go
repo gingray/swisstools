@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/log"
 	"github.com/gingray/swisstools/pkg/common"
 	"github.com/gingray/swisstools/pkg/mr"
+	"github.com/gingray/swisstools/pkg/service"
 	"github.com/gingray/swisstools/pkg/ui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -29,7 +30,12 @@ to quickly create a Cobra application.`,
 			log.Error(err)
 			return
 		}
-		gitlabService := mr.NewGitlab(&cfg, ui.NewTableView())
+		client, err := service.NewGitlab(&cfg.GitLab, log.Default())
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		gitlabService := mr.NewGitlab(&cfg, client, ui.NewTableView())
 		gitlabService.FetchMrs()
 	},
 }
