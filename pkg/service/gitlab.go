@@ -43,8 +43,8 @@ type GitlabProject struct {
 }
 
 type BranchChanges struct {
-	Branch       string
-	ChangedFiles []string
+	Branch       string   `json:"branch"`
+	ChangedFiles []string `json:"changed_files"`
 }
 
 func NewGitlab(cfg *common.GitLabConfig, logger *log.Logger) (*Gitlab, error) {
@@ -110,15 +110,13 @@ func (g *Gitlab) ChangedFilesForBranch(filter BranchFilter) (*BranchChanges, err
 		if len(mrs) == 0 {
 			return nil, fmt.Errorf("no merge request found for user %q", user)
 		}
-		mr = *mrs[0]
-		break
+		filesChanged, err := g.mergeRequestFilePaths(mrs[0])
+		if err != nil {
+			return nil, err
+		}
+		return &BranchChanges{Branch: mr.SourceBranch, ChangedFiles: filesChanged}, nil
 	}
-
-	filesChanged, err := g.mergeRequestFilePaths(&mr)
-	if err != nil {
-		return nil, err
-	}
-	return &BranchChanges{Branch: mr.SourceBranch, ChangedFiles: filesChanged}, nil
+	return nil, fmt.Errorf("no merge request found for user %q", filter.User)
 }
 
 func (g *Gitlab) mergeRequestFilePaths(mr *gitlab.BasicMergeRequest) ([]string, error) {
