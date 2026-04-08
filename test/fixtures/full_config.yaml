@@ -33,3 +33,6 @@ workflow:
         predefinedArgs:
             - key: currentDir
               value: '{{.CurrentDir}}'
+mcp:
+    port: 0
+    gitlabUser: ""

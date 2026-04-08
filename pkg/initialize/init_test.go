@@ -1,13 +1,14 @@
 package initialize
 
 import (
+	"os"
+	"path/filepath"
+	"testing"
+
 	"github.com/gingray/swisstools/pkg/common"
 	"github.com/gingray/swisstools/test"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
-	"os"
-	"path/filepath"
-	"testing"
 )
 import "github.com/stretchr/testify/assert"
 
